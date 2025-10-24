@@ -3,7 +3,7 @@ using Product_project.DTOs;
 using Product_project.Services.Interfaces;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/products")]
 public class ProductController : ControllerBase
 {
     private readonly IProductService _service;

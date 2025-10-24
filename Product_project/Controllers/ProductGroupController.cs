@@ -4,25 +4,25 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Product_project.DTOs;
 using Product_project.models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ProductApi.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    
+    [Route("api/product-groups")]
     public class ProductGroupController : ControllerBase
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
 
-        
+
         public ProductGroupController(AppDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-    
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductGroupDto>>> GetProductGroups()
         {
@@ -30,25 +30,26 @@ namespace ProductApi.Controllers
             return Ok(_mapper.Map<IEnumerable<ProductGroupDto>>(productGroups));
         }
 
+        [Authorize(Roles = "Employee,Admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductGroupDto>> GetById(int id)
         {
-         
-           var productGroup = await _context.ProductGroups.FindAsync(id);
+
+            var productGroup = await _context.ProductGroups.FindAsync(id);
             if (productGroup == null)
                 return NotFound();
             return Ok(_mapper.Map<ProductGroupDto>(productGroup));
         }
 
         [HttpPost]
-        public async Task<ActionResult<ProductGroupDto>> Create( ProductGroupCreateDto request)
+        public async Task<ActionResult<ProductGroupDto>> Create(ProductGroupCreateDto request)
         {
-            var group =  _mapper.Map<ProductGroup>(request);
+            var group = _mapper.Map<ProductGroup>(request);
             _context.ProductGroups.Add(group);
             await _context.SaveChangesAsync();
 
             var result = _mapper.Map<ProductGroupDto>(group);
-            return CreatedAtAction(nameof(GetById), new {id = group.Id}, result);
+            return CreatedAtAction(nameof(GetById), new { id = group.Id }, result);
         }
 
         [HttpPut("{id}")]
@@ -76,7 +77,5 @@ namespace ProductApi.Controllers
 
             return NoContent();
         }
-
-
     }
 }
