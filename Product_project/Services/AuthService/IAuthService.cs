@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Product_project.DTOs;
 
-namespace Product_project.Services.Interfaces
+namespace Product_project.Services.AuthService
 {
     public interface IAuthService
     {

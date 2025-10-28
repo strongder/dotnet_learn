@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Product_project.Data;
+using Product_project.Data.Repositories.ProductRepository;
 using Product_project.Models;
 using Product_project.Profiles;
-using Product_project.Services.Implements;
-using Product_project.Services.Interfaces;
+using Product_project.Services.AuthService;
+using Product_project.Services.ProductService;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,8 +47,9 @@ builder.Services.AddAuthentication(options =>
 
 
 builder.Services.AddAuthorization();
-builder.Services.AddTransient<IProductService, ProductService>();
-builder.Services.AddTransient<IUserService, UserService>();
+
+builder.Services.AddTransient<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddAutoMapper(typeof(Program));
 

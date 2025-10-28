@@ -3,13 +3,12 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Product_project.DTOs;
 using Product_project.Models;
-using Product_project.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.WebSockets;
 using System.Security.Claims;
 using System.Text;
 
-namespace Product_project.Services.Implements
+namespace Product_project.Services.AuthService
 {
     public class AuthService : IAuthService
     {
@@ -43,7 +42,7 @@ namespace Product_project.Services.Implements
         public async Task<string> LoginAsync(LoginDto dto)
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
-          
+
             if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
                 throw new Exception("invalid credentitals");
 

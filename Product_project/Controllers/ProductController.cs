@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Product_project.DTOs;
-using Product_project.Services.Interfaces;
+using Product_project.Services.ProductService;
 
+[Authorize]
 [ApiController]
 [Route("api/products")]
 public class ProductController : ControllerBase
@@ -28,6 +30,7 @@ public class ProductController : ControllerBase
         return Ok(product);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<ProductDto>> Create(ProductCreateDto dto)
     {
@@ -35,6 +38,7 @@ public class ProductController : ControllerBase
         return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, ProductCreateDto dto)
     {
@@ -43,6 +47,7 @@ public class ProductController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

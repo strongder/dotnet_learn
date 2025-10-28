@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Product_project.DTOs;
-using Product_project.Services.Interfaces;
+using Product_project.Services.AuthService;
 
 namespace Product_project.Controllers
 {
@@ -16,10 +16,26 @@ namespace Product_project.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<string> Login([FromBody] LoginDto loginDto)
+        public async Task<ActionResult<string>> Login([FromBody] LoginDto loginDto)
         {
             var token = await _auth.LoginAsync(loginDto);
-            return token;
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized("Invalid username or password");
+
+            return Ok(new {token = token});
         }
+
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+        {
+            var result = await _auth.Register(dto);
+
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok("User registered successfully");
+        }
+
     }
 }

@@ -5,76 +5,60 @@ using Microsoft.EntityFrameworkCore;
 using Product_project.DTOs;
 using Product_project.models;
 using Microsoft.AspNetCore.Authorization;
+using Product_project.Services.ProductGroupService;
 
 namespace ProductApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/product-groups")]
     public class ProductGroupController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IProductGroupService _service;
 
-
-        public ProductGroupController(AppDbContext context, IMapper mapper)
+        public ProductGroupController(IProductGroupService service)
         {
-            _context = context;
-            _mapper = mapper;
+            _service = service;
         }
-
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductGroupDto>>> GetProductGroups()
         {
-            var productGroups = await _context.ProductGroups.ToArrayAsync();
-            return Ok(_mapper.Map<IEnumerable<ProductGroupDto>>(productGroups));
+            var groups = await _service.GetAllAsync();
+            return Ok(groups);
         }
 
-        [Authorize(Roles = "Employee,Admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductGroupDto>> GetById(int id)
         {
-
-            var productGroup = await _context.ProductGroups.FindAsync(id);
-            if (productGroup == null)
-                return NotFound();
-            return Ok(_mapper.Map<ProductGroupDto>(productGroup));
+            var group = await _service.GetByIdAsync(id);
+            if (group == null) return NotFound();
+            return Ok(group);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<ProductGroupDto>> Create(ProductGroupCreateDto request)
+        public async Task<ActionResult<ProductGroupDto>> Create(ProductGroupCreateDto dto)
         {
-            var group = _mapper.Map<ProductGroup>(request);
-            _context.ProductGroups.Add(group);
-            await _context.SaveChangesAsync();
-
-            var result = _mapper.Map<ProductGroupDto>(group);
-            return CreatedAtAction(nameof(GetById), new { id = group.Id }, result);
+            var group = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = group.Id }, group);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, ProductGroupCreateDto dto)
         {
-            var group = await _context.ProductGroups.FindAsync(id);
-            if (group == null)
-                return NotFound();
-
-            _mapper.Map(dto, group);
-            await _context.SaveChangesAsync();
-
+            var updated = await _service.UpdateAsync(id, dto);
+            if (!updated) return NotFound();
             return NoContent();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var group = await _context.ProductGroups.FindAsync(id);
-            if (group == null)
-                return NotFound();
-
-            _context.ProductGroups.Remove(group);
-            await _context.SaveChangesAsync();
-
+            var deleted = await _service.DeleteAsync(id);
+            if (!deleted) return NotFound();
             return NoContent();
         }
     }
